@@ -1,62 +1,44 @@
+import expressAsyncHandler from "express-async-handler";
 import supportedCryptoCurrencies from "../config/supportedCryptoCurrencies.js";
 import CryptoData from "../models/cryptoDataModel.js";
 import { std } from "mathjs";
 
-export const getStats = async (req, res) => {
-  const cryptoCurrency = req.query.coin;
-
-  if (!cryptoCurrency) {
-    return res.status(400).json({ error: "Missing coin query parameter" });
+//@desc Get the latest data about the requested cryptocurrency
+//@route GET /api/coin-info/stats
+//@access public
+export const getStats = expressAsyncHandler(async (req, res) => {
+  const data = await CryptoData.findOne({
+    crypto_currency: req.query.coin,
+  })
+    .sort({ timestamp: -1 })
+    .exec();
+  if (!data) {
+    res.status(404);
+    throw new Error("No Data Found");
   }
 
-  if (!supportedCryptoCurrencies.includes(cryptoCurrency)) {
-    return res.status(400).json({ error: "Invalid cryptocurrency" });
+  res.status(200).json({
+    price: parseFloat(data.price),
+    marketCap: parseFloat(data.market_cap),
+    "24hChange": parseFloat(data.change_24h),
+  });
+});
+
+//@desc Get standard deviation of the price of the requested cryptocurrency for the last 100 records
+//@route GET /api/coin-info/deviation
+//@access public
+export const getDeviation = expressAsyncHandler(async (req, res) => {
+  const data = await CryptoData.find({ crypto_currency: req.query.coin })
+    .sort({ timestamp: -1 })
+    .limit(100)
+    .select("price -_id")
+    .exec();
+  if (data.length === 0) {
+    res.status(404);
+    throw new Error("No Data Found");
   }
 
-  try {
-    const data = await CryptoData.findOne({
-      crypto_currency: cryptoCurrency,
-    })
-      .sort({ timestamp: -1 })
-      .exec();
-    if (!data) {
-      return res.status(404).json({ error: "No data found" });
-    }
-
-    res.json({
-      price: parseFloat(data.price),
-      marketCap: parseFloat(data.market_cap),
-      "24hChange": parseFloat(data.change_24h),
-    });
-  } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
-
-export const getDeviation = async (req, res) => {
-  const cryptoCurrency = req.query.coin;
-
-  if (!cryptoCurrency) {
-    return res.status(400).json({ error: "Missing coin query parameter" });
-  }
-
-  if (!supportedCryptoCurrencies.includes(cryptoCurrency)) {
-    return res.status(400).json({ error: "Invalid cryptocurrency" });
-  }
-
-  try {
-    const data = await CryptoData.find({ crypto_currency: cryptoCurrency })
-      .sort({ timestamp: -1 })
-      .limit(100)
-      .select("price -_id");
-    if (data.length === 0) {
-      return res.status(404).json({ error: "No data found" });
-    }
-
-    const prices = data.map((item) => parseFloat(item.price));
-    const deviation = std(prices);
-    res.json({ deviation });
-  } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+  const prices = data.map((item) => parseFloat(item.price));
+  const deviation = std(prices);
+  res.status(200).json({ deviation });
+});
