@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import { connectDb } from "./config/dbConnection.js";
-
+import "./tasks/fetchCryptoDataJob.js";
 dotenv.config();
 
 const app = express();
