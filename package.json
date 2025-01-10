@@ -1,0 +1,32 @@
+{
+  "name": "koinx_backend_internship_assignment",
+  "version": "1.0.0",
+  "description": "Assignment to develop a server side application using Node.js and MongoDB to show data of cryptocurrencies: Bitcoin, Matic, and Ethereum.",
+  "homepage": "https://github.com/durgavinay8/KoinX_Backend_Internship_Assignment#readme",
+  "bugs": {
+    "url": "https://github.com/durgavinay8/KoinX_Backend_Internship_Assignment/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/durgavinay8/KoinX_Backend_Internship_Assignment.git"
+  },
+  "license": "ISC",
+  "author": "B L V S Durga Vinay",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.4",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
